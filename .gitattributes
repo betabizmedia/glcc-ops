@@ -1,0 +1,6 @@
+# Force LF line endings so Windows machines don't add \r to .env values
+# (a trailing \r silently breaks the Telegram webhook secret + URLs).
+* text=auto eol=lf
+.env.example eol=lf
+*.sh eol=lf
+*.mjs eol=lf

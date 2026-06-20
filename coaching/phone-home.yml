@@ -1,0 +1,37 @@
+# ⚙️ OPT-IN coaching workflow — NOT active by default.
+#
+# This file lives in /coaching on purpose. It is NOT in .github/workflows/, so
+# cloning this starter and pushing it on Day 1 NEVER needs the GitHub `workflow`
+# token scope (a `git push` that adds a file under .github/workflows is rejected
+# unless your token has that scope — which trips up beginners).
+#
+# Turn it on ONLY if you opt into 60-day coaching (Day 2). See COACH.md. Easiest:
+# add it through the GitHub web UI (Add file → Create new file →
+# `.github/workflows/phone-home.yml`, paste the block below) — the web UI doesn't
+# need the workflow scope. It sends METADATA ONLY, gated on the COACH_OPT_IN repo
+# Variable, and never your business data.
+#
+# ---------------------------------------------------------------------------
+name: GLCC Phone Home (opt-in)
+on: [deployment_status]
+
+jobs:
+  ping:
+    # HARD CONSENT GATE: gated on the repo VARIABLE vars.COACH_OPT_IN
+    # (set via Settings -> Secrets and variables -> Actions -> Variables),
+    # NOT an env: flag, NOT a committed value. Also requires a successful deploy.
+    if: ${{ vars.COACH_OPT_IN == 'true' && github.event.deployment_status.state == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send metadata only (no business data)
+        run: |
+          curl -sS -X POST https://event-ops-six.vercel.app/api/glcc-student \
+            -H "Content-Type: application/json" \
+            -H "X-GLCC-Token: ${{ secrets.GLCC_TOKEN }}" \
+            -d '{
+              "name":      "${{ vars.NAME }}",
+              "vertical":  "${{ vars.VERTICAL }}",
+              "repoUrl":   "${{ github.server_url }}/${{ github.repository }}",
+              "vercelUrl": "${{ github.event.deployment_status.target_url }}",
+              "lastDeploy":"${{ github.event.deployment_status.created_at }}"
+            }'

@@ -1,0 +1,19 @@
+/node_modules
+/.next
+/out
+/build
+next-env.d.ts
+
+# secrets — NEVER commit these
+.env
+.env*.local
+*.env
+*.key
+*.bak
+*secret*
+# but DO keep the example
+!.env.example
+
+*.tsbuildinfo
+.DS_Store
+.vercel
